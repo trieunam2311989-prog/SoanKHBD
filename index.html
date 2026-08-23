@@ -94,7 +94,7 @@
       <!-- Tên bài học -->
       <div>
         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tên bài học</label>
-        <input id="lessonName" type="text" placeholder="Ví dụ: Chuyện bốn mùa (Tiết 1)..." 
+        <input id="lessonName" type="text" placeholder="Ví dụ: Ôn tập về phân số (Tiết 1)..." 
                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm">
       </div>
 
@@ -114,8 +114,8 @@
         <label class="flex items-start gap-2 text-xs text-slate-700 cursor-pointer">
           <input type="checkbox" id="optDigiComp" checked class="mt-0.5 rounded text-teal-600 focus:ring-teal-500">
           <div>
-            <strong class="text-teal-900 block">Khung Năng Lực Số (DigComp)</strong>
-            <span>Tự động tích hợp miền năng lực số: Khai thác tài nguyên số, thao tác thiết bị, giải quyết vấn đề bằng công nghệ.</span>
+            <strong class="text-teal-900 block">Khung Năng Lực Số (DigComp Edu)</strong>
+            <span>Tự động tích hợp miền năng lực số: Khai thác tài nguyên số, giao tiếp/hợp tác số, giải quyết vấn đề bằng công nghệ.</span>
           </div>
         </label>
 
@@ -208,7 +208,7 @@
       const optDifferentiate = document.getElementById("optDifferentiate").checked;
 
       if (!apiKey) {
-        alert("Vui lòng dán Gemini API Key ở ô phía trên bên phải.");
+        alert("Vui lòng dán Gemini API Key ở góc trên bên phải.");
         return;
       }
       if (!lessonName) {
@@ -220,11 +220,11 @@
       const resultBox = document.getElementById("resultBox");
 
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Đang xử lý & soạn giáo án...</span>';
-      resultBox.innerHTML = '<div class="text-center py-24 text-slate-500 flex flex-col items-center gap-3"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-teal-600"></i><p>Đang tích hợp chuẩn CV 2345, Năng lực số và Học thông qua chơi...</p></div>';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Đang tích hợp & soạn giáo án...</span>';
+      resultBox.innerHTML = '<div class="text-center py-24 text-slate-500 flex flex-col items-center gap-3"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-teal-600"></i><p>Đang xử lý nội dung chuẩn CV 2345, Năng lực số và Học thông qua chơi...</p></div>';
 
       const prompt = `
-Bạn là chuyên gia giáo dục tiểu học Việt Nam, nắm vững Chương trình GDPT 2018, Công văn 2345/BGDĐT, Khung Năng Lực Số và phương pháp Học Thông Qua Chơi.
+Bạn là chuyên gia giáo dục tiểu học Việt Nam, am hiểu sâu sắc Chương trình GDPT 2018, Công văn 2345/BGDĐT, Khung Năng Lực Số cho học sinh phổ thông và phương pháp Học Thông Qua Chơi (Learning through Play).
 
 Hãy thiết kế Kế hoạch bài dạy chi tiết cho:
 - Giáo viên thực hiện: Thầy Triệu Xuân Năm
@@ -235,38 +235,38 @@ Hãy thiết kế Kế hoạch bài dạy chi tiết cho:
 - Tên bài dạy: ${lessonName}
 - Thời lượng: ${duration}
 
-CÁC YÊU CẦU TÍCH HỢP:
-${optDigiComp ? `* TÍCH HỢP NĂNG LỰC SỐ: Xác định rõ chỉ báo năng lực số ở mục I. Lồng ghép hoạt động dùng công nghệ, thiết bị, học liệu số vào bảng tiến trình dạy học.` : ''}
-${optPlay ? `* HỌC THÔNG QUA CHƠI: Vận dụng 5 đặc trưng. Thiết kế trò chơi khởi động, hoạt động tương tác nhóm sinh động.` : ''}
-${optDifferentiate ? `* DẠY HỌC PHÂN HÓA: Gợi ý phương án hỗ trợ học sinh cần cố gắng và câu hỏi nâng cao cho học sinh hoàn thành tốt.` : ''}
+CÁC YÊU CẦU TÍCH HỢP ĐẶC BIỆT:
+${optDigiComp ? `* TÍCH HỢP NĂNG LỰC SỐ: Xác định rõ chỉ báo năng lực số ở mục I (Ví dụ: Khai thác học liệu số, Sử dụng thiết bị số an toàn, Hợp tác trên môi trường số, Giải quyết vấn đề bằng công nghệ). Lồng ghép hoạt động dùng công nghệ (máy chiếu, bài giảng tương tác, bảng thông minh, tra cứu dữ liệu số...) vào bảng tiến trình dạy học.` : ''}
+${optPlay ? `* HỌC THÔNG QUA CHƠI: Vận dụng 5 đặc trưng (Vui vẻ, Có ý nghĩa, Tham gia tích cực, Cơ hội thử nghiệm, Tương tác xã hội). Thiết kế trò chơi khởi động, hoạt động khám phá và luyện tập sinh động, khuyến khích học sinh đóng vai, tương tác nhóm, giải đố.` : ''}
+${optDifferentiate ? `* DẠY HỌC PHÂN HÓA: Chỉ rõ phương án hỗ trợ học sinh gặp khó khăn và câu hỏi thử thách mở rộng cho học sinh hoàn thành tốt.` : ''}
 
-CẤU TRÚC KẾ HOẠCH BÀI DẠY (Chuẩn CV 2345/BGDĐT):
+YÊU CẦU CẤU TRÚC KẾ HOẠCH BÀI DẠY (Chuẩn CV 2345/BGDĐT):
 # KẾ HOẠCH BÀI DẠY: ${lessonName.toUpperCase()}
 **Trường:** PTDTBT TH Thắng Mố - Phân hiệu 2 | **Giáo viên:** Triệu Xuân Năm  
 **Môn:** ${subject} - **${grade}** (${book}) | **Thời lượng:** ${duration}
 
 ## I. YÊU CẦU CẦN ĐẠT
-1. **Năng lực đặc thù:** (Biểu hiện môn ${subject})
-2. **Năng lực chung:** (Tự chủ - tự học; Giao tiếp - hợp tác; Giải quyết vấn đề - sáng tạo)
-${optDigiComp ? '3. **Năng lực số:** (Chỉ báo cụ thể)' : ''}
+1. **Năng lực đặc thù:** (Biểu hiện cụ thể của môn ${subject})
+2. **Năng lực chung:** (Tự chủ và tự học; Giao tiếp và hợp tác; Giải quyết vấn đề và sáng tạo)
+${optDigiComp ? '3. **Năng lực số:** (Ghi rõ thành tố năng lực số hình thành trong bài học: Khai thác tài nguyên số, thao tác công nghệ, an toàn số...)' : ''}
 4. **Phẩm chất chủ yếu:** (Yêu nước, Nhân ái, Chăm chỉ, Trung thực, Trách nhiệm)
 
 ## II. ĐỒ DÙNG DẠY HỌC
-1. **Giáo viên:** Thiết bị số, bài giảng, phiếu học tập...
-2. **Học sinh:** Sách giáo khoa, vở ghi, đồ dùng học tập...
+1. **Giáo viên:** Thiết bị số, bài giảng điện tử/tương tác, phiếu học tập, đồ dùng trực quan...
+2. **Học sinh:** Sách giáo khoa, vở ghi, đồ dùng cá nhân, phiếu bài tập...
 
 ## III. CÁC HOẠT ĐỘNG DẠY HỌC CHỦ YẾU
-Trình bày dưới dạng BẢNG 2 CỘT chuẩn Markdown:
+Trình bày dưới dạng BẢNG 2 CỘT chuẩn Markdown gồm:
 - Cột 1: **Hoạt động của giáo viên**
 - Cột 2: **Hoạt động của học sinh**
 
-Bao gồm 4 hoạt động:
-1. **Hoạt động 1: Khởi động**
-2. **Hoạt động 2: Khám phá / Hình thành kiến thức**
-3. **Hoạt động 3: Luyện tập, thực hành**
-4. **Hoạt động 4: Vận dụng, trải nghiệm**
+Bao gồm chi tiết 4 hoạt động:
+1. **Hoạt động 1: Khởi động** (Tích hợp trò chơi học tập, tạo không khí vui tươi)
+2. **Hoạt động 2: Khám phá / Hình thành kiến thức** (Trực quan, tích hợp năng lực số/trải nghiệm)
+3. **Hoạt động 3: Luyện tập, thực hành** (Tương tác nhóm, thực hiện nhiệm vụ phân hóa)
+4. **Hoạt động 4: Vận dụng, trải nghiệm** (Liên hệ thực tế đời sống, mở rộng)
 
-## IV. ĐIỀU CHỈNH SAU BÀI DẠY (Dòng kẻ trống)
+## IV. ĐIỀU CHỈNH SAU BÀI DẠY (Để trống dòng kẻ cho GV nhận xét)
 `;
 
       try {
@@ -279,13 +279,13 @@ Bao gồm 4 hoạt động:
         });
 
         const data = await response.json();
-        if (data.error) {
-          resultBox.innerHTML = `<div class="text-red-500 py-10 text-center"><strong>Lỗi API:</strong> ${data.error.message}</div>`;
-        } else if (data.candidates && data.candidates[0].content.parts[0].text) {
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
           const markdownText = data.candidates[0].content.parts[0].text;
           resultBox.innerHTML = marked.parse(markdownText);
+        } else if (data.error) {
+          resultBox.innerHTML = `<div class="text-red-500 py-10 text-center"><strong>Lỗi:</strong> ${data.error.message}</div>`;
         } else {
-          resultBox.innerHTML = '<div class="text-red-500 py-10 text-center">Không tạo được nội dung. Vui lòng kiểm tra lại API Key.</div>';
+          resultBox.innerHTML = '<div class="text-red-500 py-10 text-center">Không thể tạo nội dung. Vui lòng kiểm tra lại API Key hoặc tên bài dạy.</div>';
         }
       } catch (err) {
         resultBox.innerHTML = `<div class="text-red-500 py-10 text-center">Lỗi kết nối: ${err.message}</div>`;
@@ -322,3 +322,12 @@ Bao gồm 4 hoạt động:
   </script>
 </body>
 </html>
+```[cite: 1]
+
+---
+
+### Hướng dẫn dán lại:
+1. Mở file `index.html` trên GitHub và bấm biểu tượng **Cây bút ✏️** (Edit)[cite: 1].
+2. Nhấn **Ctrl + A** rồi bấm phím **Delete** để xóa trắng hoàn toàn.
+3. Dán toàn bộ mã nguồn bên trên vào và bấm nút màu xanh **Commit changes...** ở góc trên/dưới.
+4. Đợi khoảng 30 giây rồi mở trang web tải lại (F5) là xong[cite: 1]!
