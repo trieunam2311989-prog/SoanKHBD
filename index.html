@@ -58,7 +58,7 @@
   </section>
 </main>
 
-<!-- Modal 1: Trợ lý Soạn KHBD Chuẩn GDPT 2018 (Tải ảnh SGK & Tích hợp đầy đủ) -->
+<!-- Modal 1: Trợ lý Soạn KHBD Chuẩn GDPT 2018 (Hỗ trợ Ảnh, PDF, Word, Excel) -->
 <div id="lpModal" class="modal">
   <div class="box" style="max-width:920px; width:95%;">
     <button class="close" data-close="lpModal">×</button>
@@ -71,14 +71,14 @@
         <input id="lp_subject" type="text" placeholder="Ví dụ: Toán Lớp 5 - Ôn tập số tự nhiên (Tiết 1) / Tiếng Mông..." style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #d9d9d9; border-radius:6px; margin-top:4px;">
       </div>
       <div>
-        <label style="font-weight:bold; font-size:13px; color:#143d59;">📷 Tải ảnh trang Sách giáo khoa (trích xuất bài tập):</label>
-        <input id="lp_file" type="file" accept="image/*" multiple style="width:100%; box-sizing:border-box; padding:5px; border:1px dashed #52c41a; background:#f6ffed; border-radius:6px; margin-top:4px;">
+        <label style="font-weight:bold; font-size:13px; color:#143d59;">📁 Tải tệp SGK / Tài liệu (Ảnh, PDF, Word, Excel):</label>
+        <input id="lp_file" type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="width:100%; box-sizing:border-box; padding:5px; border:1px dashed #52c41a; background:#f6ffed; border-radius:6px; margin-top:4px;">
       </div>
     </div>
 
     <div style="margin-top:10px;">
       <label style="font-weight:bold; font-size:13px; color:#143d59;">Yêu cầu bổ sung (nội dung chữ, hình thức trò chơi, phân hóa):</label>
-      <textarea id="lp_prompt" rows="3" placeholder="Nhập thêm yêu cầu hoặc dán nội dung chữ bài tập vào đây nếu không tải ảnh..." style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #d9d9d9; border-radius:6px; margin-top:4px; font-family:inherit;"></textarea>
+      <textarea id="lp_prompt" rows="3" placeholder="Nhập thêm yêu cầu hoặc dán nội dung chữ bài tập vào đây nếu không tải tệp..." style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #d9d9d9; border-radius:6px; margin-top:4px; font-family:inherit;"></textarea>
     </div>
 
     <div style="display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap;">
@@ -273,7 +273,7 @@
 
 <script src="data.js"></script>
 
-<!-- TOÀN BỘ MÃ JAVASCRIPT ĐƯỢC TÍCH HỢP TRỰC TIẾP TẠI ĐÂY -->
+<!-- TOÀN BỘ MÃ JAVASCRIPT TÍCH HỢP TRỌN GÓI -->
 <script>
 // ====== CẤU HÌNH NGÂN HÀNG, SUPABASE & GEMINI AI ======
 const BANK_ID = "MB";
@@ -648,7 +648,7 @@ function onVipActivated() {
   location.reload();
 }
 
-// ====== TRỢ LÝ SOẠN KHBD GDPT 2018 (ĐA MÔN: TOÁN, TIẾNG VIỆT, TIẾNG MÔNG) ======
+// ====== TRỢ LÝ SOẠN KHBD GDPT 2018 (HỖ TRỢ ẢNH, PDF, WORD, EXCEL) ======
 if ($('#lpBtn')) {
   $('#lpBtn').onclick = () => openModal('#lpModal');
 }
@@ -662,34 +662,42 @@ if ($('#btnGenerateLP')) {
     const outputEl = $('#lp_output');
 
     if (!subject && !promptText && (!fileInput || fileInput.files.length === 0)) {
-      alert("Vui lòng nhập tên bài hoặc tải ảnh SGK lên!");
+      alert("Vui lòng nhập tên bài hoặc tải tệp tài liệu/SGK lên!");
       return;
     }
 
-    if (statusEl) statusEl.textContent = "⏳ Đang phân tích sách và tạo Kế hoạch bài dạy chi tiết...";
+    if (statusEl) statusEl.textContent = "⏳ Đang phân tích tài liệu và soạn Kế hoạch bài dạy chi tiết...";
     if (outputEl) outputEl.value = "";
     $('#btnGenerateLP').disabled = true;
 
     try {
-      let imageParts = [];
+      let fileParts = [];
       if (fileInput && fileInput.files.length > 0) {
         for (let file of fileInput.files) {
+          let mimeType = file.type;
+          if (!mimeType) {
+            if (file.name.endsWith('.pdf')) mimeType = 'application/pdf';
+            else if (file.name.endsWith('.docx')) mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+            else if (file.name.endsWith('.xlsx')) mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            else if (file.name.endsWith('.doc')) mimeType = 'application/msword';
+            else if (file.name.endsWith('.xls')) mimeType = 'application/vnd.ms-excel';
+            else mimeType = 'image/jpeg';
+          }
           const b64 = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result.split(',')[1]);
             reader.readAsDataURL(file);
           });
-          imageParts.push({
-            inlineData: { data: b64, mimeType: file.type }
+          fileParts.push({
+            inlineData: { data: b64, mimeType: mimeType }
           });
         }
       }
 
-      // Ngữ cảnh từ điển tiếng Mông Việt Nam phục vụ khi soạn bài Tiếng Mông
       const mongContext = data.slice(0, 100).map(x => `${x.mong} = ${x.viet}`).join('; ');
 
       const systemPrompt = `Bạn là Chuyên gia Giáo dục Tiểu học và Biên soạn Kế hoạch bài dạy (KHBD) theo Chương trình GDPT 2018 tại Việt Nam.
-Nhiệm vụ: Hãy soạn một Kế hoạch bài dạy chi tiết, hoàn chỉnh và chất lượng cao cho bài học:
+Nhiệm vụ: Hãy phân tích tệp tài liệu được đính kèm (Sách giáo khoa, đề bài) và soạn một Kế hoạch bài dạy chi tiết, hoàn chỉnh và chất lượng cao cho bài học:
 - Tên môn học / bài học: "${subject}"
 - Yêu cầu bổ sung / bài tập: "${promptText}"
 
@@ -710,7 +718,7 @@ QUY CHUẨN SOẠN BÀI BẮT BUỘC:
    IV. ĐIỀU CHỈNH SAU BÀI DẠY.`;
 
       const contents = [{
-        parts: [{ text: systemPrompt }, ...imageParts]
+        parts: [{ text: systemPrompt }, ...fileParts]
       }];
 
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
