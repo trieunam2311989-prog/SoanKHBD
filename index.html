@@ -273,7 +273,7 @@
 
 <script src="data.js"></script>
 
-<!-- TOÀN BỘ MÃ JAVASCRIPT TÍCH HỢP TRỌN GÓI -->
+<!-- TOÀN BỘ MÃ JAVASCRIPT ĐƯỢC TÍCH HỢP TRỌN GÓI -->
 <script>
 // ====== CẤU HÌNH NGÂN HÀNG, SUPABASE & GEMINI AI ======
 const BANK_ID = "MB";
@@ -284,7 +284,8 @@ const VIP_PRICE = 10000;
 const SUPABASE_URL = 'https://emplcjjqcwpundaqklci.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcGxjampxY3dwdW5kYXFrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczOTEyNjAsImV4cCI6MjEwMjk2NzI2MH0.lXf9toe-FO_eeB0MtIIeyWf7f1E0TtKoRsCXj-SfvyM';
 
-const GEMINI_API_KEY = "AQ.Ab8RN6LRLT6psy-OXTUkO3-vkFsgATfcaiNxon4myKzaItTcAA";
+// KHÓA API GEMINI (Thay thế chuỗi AIzaSy của Thầy vào đây)
+const GEMINI_API_KEY = "AIzaSy_DÁN_MÃ_KEY_CỦA_THẦY_VÀO_ĐÂY";
 
 let sbClient = null;
 try {
@@ -392,7 +393,7 @@ if (q) {
   };
 }
 
-// ====== HỆ THỐNG XÁC THỰC & ĐỔI MẬT KHẨU ======
+// ====== HỆ THỐNG XÁC THỰC & TÀI KHOẢN ======
 async function checkAuth() {
   if (!sbClient) return;
   try {
@@ -666,6 +667,24 @@ if ($('#btnGenerateLP')) {
       return;
     }
 
+    if (!GEMINI_API_KEY || !GEMINI_API_KEY.startsWith("AIzaSy")) {
+      if (statusEl) statusEl.textContent = "❌ Khóa GEMINI_API_KEY chưa đúng (bắt buộc bắt đầu bằng chữ AIzaSy...)!";
+      alert("Khóa API chưa chuẩn! Vui lòng vào https://aistudio.google.com/app/apikey để lấy mã khóa bắt đầu bằng chữ AIzaSy...");
+      return;
+    }
+
+    // Giới hạn dung lượng tệp tải lên
+    if (fileInput && fileInput.files.length > 0) {
+      let totalSizeMB = 0;
+      for (let file of fileInput.files) {
+        totalSizeMB += file.size / (1024 * 1024);
+      }
+      if (totalSizeMB > 15) {
+        alert(`Tệp tải lên quá nặng (${totalSizeMB.toFixed(1)} MB)! Vui lòng chỉ tải ảnh chụp hoặc tệp chứa bài học cần soạn thay vì tải cả cuốn sách.`);
+        return;
+      }
+    }
+
     if (statusEl) statusEl.textContent = "⏳ Đang phân tích tài liệu và soạn Kế hoạch bài dạy chi tiết...";
     if (outputEl) outputEl.value = "";
     $('#btnGenerateLP').disabled = true;
@@ -681,6 +700,7 @@ if ($('#btnGenerateLP')) {
             else if (file.name.endsWith('.xlsx')) mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
             else if (file.name.endsWith('.doc')) mimeType = 'application/msword';
             else if (file.name.endsWith('.xls')) mimeType = 'application/vnd.ms-excel';
+            else if (file.name.endsWith('.png')) mimeType = 'image/png';
             else mimeType = 'image/jpeg';
           }
           const b64 = await new Promise((resolve) => {
@@ -728,15 +748,17 @@ QUY CHUẨN SOẠN BÀI BẮT BUỘC:
       });
 
       const resData = await response.json();
-      if (resData.candidates && resData.candidates[0].content.parts[0].text) {
+      if (resData.candidates && resData.candidates[0] && resData.candidates[0].content && resData.candidates[0].content.parts[0].text) {
         outputEl.value = resData.candidates[0].content.parts[0].text;
-        if (statusEl) statusEl.textContent = "✅ Đã soạn xong KHBD!";
+        if (statusEl) statusEl.textContent = "✅ Đã soạn xong KHBD thành công!";
+      } else if (resData.error) {
+        if (statusEl) statusEl.textContent = "❌ Lỗi từ Google: " + resData.error.message;
       } else {
         if (statusEl) statusEl.textContent = "❌ Không nhận được phản hồi từ AI. Vui lòng thử lại!";
       }
     } catch (err) {
       console.error(err);
-      if (statusEl) statusEl.textContent = "❌ Lỗi: " + err.message;
+      if (statusEl) statusEl.textContent = "❌ Lỗi mạng: " + err.message;
     } finally {
       $('#btnGenerateLP').disabled = false;
     }
