@@ -1,1 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trợ lý Soạn Kế hoạch bài dạy Tiểu học</title>
 
+<!-- Thư viện phía trình duyệt -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --primary:#1769aa; --primary2:#0d47a1; --bg:#f4f7fb; --card:#fff;
+  --text:#17202a; --muted:#667085; --border:#d9e1ec; --ok:#087f5b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,var(--primary2),var(--primary));color:#fff;padding:22px}
+header h1{margin:0 0 7px;font-size:25px}
+header p{margin:0;opacity:.92}
+.container{max-width:1450px;margin:auto;padding:18px}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 3px 14px #16324d0d}
+.card h2,.card h3{margin-top:0}
+label{font-weight:700;font-size:14px;display:block;margin:12px 0 6px}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;border:1px solid var(--border);border-radius:9px;padding:10px;background:#fff}
+textarea{min-height:90px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.checks label{font-weight:400;margin:0;border:1px solid var(--border);border-radius:8px;padding:8px;background:#fafcff}
+button{border:0;border-radius:9px;padding:11px 14px;cursor:pointer;font-weight:700}
+.btn{background:var(--primary);color:#fff}.btn:hover{background:var(--primary2)}
+.btn2{background:#eef4fb;color:var(--primary2)}
+.btn-danger{background:#fff0f0;color:#b42318}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.drop{border:2px dashed #9db4cf;border-radius:12px;padding:18px;text-align:center;background:#f9fbfe}
+.file-list{margin-top:10px;font-size:13px}
+.file-item{padding:7px 0;border-bottom:1px solid #edf1f5}
+.status{padding:9px;border-radius:8px;background:#eef6ff;color:#174a7e;margin-top:10px;font-size:13px}
+.warning{background:#fff8e6;color:#7a5200}
+.success{background:#eaf8f2;color:var(--ok)}
+.preview{border:1px solid var(--border);border-radius:10px;background:#fcfdff;padding:16px;min-height:500px;line-height:1.55}
+.preview h1,.preview h2,.preview h3{color:#173b68}
+.toolbar{position:sticky;top:0;background:#fff;padding:8px 0;border-bottom:1px solid var(--border);z-index:2}
+.small{font-size:12px;color:var(--muted)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #ccc;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+details{margin-top:10px;border:1px solid var(--border);border-radius:9px;padding:9px}
+summary{font-weight:700;cursor:pointer}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
+@media print{
+  header,.sidebar,.toolbar,.no-print{display:none!important}
+  .container{padding:0}.grid{display:block}.preview{border:0;box-shadow:none}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="container">
+    <h1>📚 TRỢ LÝ SOẠN KẾ HOẠCH BÀI DẠY TIỂU HỌC</h1>
+    <p>Soạn từ nội dung SGK/tài liệu giáo viên • bám khung CV 2345 • phân tích tích hợp trước khi đưa vào Kế hoạch bài dạy</p>
+  </div>
+</header>
+
+<div class="container">
+<div class="grid">
+
+<aside class="sidebar">
+  <div class="card">
+    <h2>1. Thông tin bài dạy</h2>
+    <div class="row">
+      <div><label>Lớp</label><select id="grade">
+        <option>Lớp 1</option><option>Lớp 2</option><option>Lớp 3</option>
+        <option>Lớp 4</option><option>Lớp 5</option>
+      </select></div>
+      <div><label>Số tiết</label><input id="periods" value="1 tiết"></div>
+    </div>
+    <label>Môn học</label>
+    <input id="subject" placeholder="Ví dụ: Tiếng Việt, Toán, TNXH...">
+    <label>Tên bài học</label>
+    <input id="lesson" placeholder="Nhập tên bài nếu SGK chưa xác định rõ">
+    <div class="row">
+      <div><label>Ngày soạn</label><input id="prepareDate" type="date"></div>
+      <div><label>Ngày giảng</label><input id="teachDate" type="date"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Tài liệu nguồn</h2>
+    <div class="drop" id="dropZone">
+      <b>📎 Kéo thả hoặc chọn tài liệu</b><br>
+      <span class="small">PDF • Word • Excel • TXT • ảnh JPG/PNG/WebP</span>
+      <input id="files" type="file" multiple accept=".pdf,.docx,.xlsx,.xls,.txt,.jpg,.jpeg,.png,.webp" style="margin-top:12px">
+    </div>
+    <div id="fileList" class="file-list"></div>
+    <div class="actions">
+      <button class="btn2" id="extractBtn">🔎 Đọc tài liệu</button>
+      <button class="btn-danger" id="clearFilesBtn">Xóa tài liệu</button>
+    </div>
+    <div id="extractStatus" class="status">Chưa đọc tài liệu.</div>
+  </div>
+
+  <div class="card">
+    <h2>3. Kiểm tra tích hợp</h2>
+    <p class="small">AI sẽ không mặc định nhồi tất cả nội dung. Chỉ tích hợp khi bài học có căn cứ phù hợp.</p>
+    <div class="checks">
+      <label><input type="checkbox" value="Năng lực số"> Năng lực số</label>
+      <label><input type="checkbox" value="Học thông qua chơi"> Học thông qua chơi</label>
+      <label><input type="checkbox" value="STEM/STEAM"> STEM/STEAM</label>
+      <label><input type="checkbox" value="Bình đẳng giới"> Bình đẳng giới</label>
+      <label><input type="checkbox" value="Giáo dục địa phương"> GD địa phương</label>
+      <label><input type="checkbox" value="Môi trường"> Môi trường</label>
+      <label><input type="checkbox" value="An toàn"> An toàn</label>
+      <label><input type="checkbox" value="Tài chính"> Giáo dục tài chính</label>
+    </div>
+    <label>Tích hợp khác</label>
+    <input id="otherIntegration" placeholder="Ví dụ: quyền trẻ em, phòng chống thiên tai...">
+  </div>
+
+  <div class="card">
+    <h2>4. Yêu cầu riêng của giáo viên</h2>
+    <textarea id="teacherNote" placeholder="Ví dụ: Ưu tiên hoạt động nhóm; học sinh dân tộc thiểu số; cần câu hỏi phân hóa; dùng thiết bị số..."></textarea>
+  </div>
+
+  <div class="card">
+    <h2>5. AI</h2>
+    <label>Nhà cung cấp</label>
+    <select id="provider">
+      <option value="gemini">Google Gemini</option>
+    </select>
+    <label>Gemini API Key</label>
+    <input id="apiKey" type="password" placeholder="Dán API key tại đây">
+    <p class="small">Khuyến nghị: không đưa API key thật vào GitHub Pages. Với website công khai nên dùng backend/proxy để giữ khóa bí mật.</p>
+    <label>Model</label>
+    <input id="model" value="gemini-2.5-flash">
+    <div class="actions">
+      <button class="btn" id="analyzeBtn">🧠 Phân tích bài</button>
+      <button class="btn" id="generateBtn">✨ Soạn Kế hoạch bài dạy</button>
+    </div>
+    <div id="aiStatus" class="status">Sẵn sàng.</div>
+  </div>
+</aside>
+
+<main>
+  <div class="card">
+    <div class="toolbar">
+      <button class="btn2" id="analysisBtn">Xem phân tích tích hợp</button>
+      <button class="btn2" id="printBtn">🖨️ In / Lưu PDF</button>
+      <button class="btn2" id="copyBtn">📋 Sao chép</button>
+      <button class="btn2" id="downloadBtn">⬇️ Tải HTML</button>
+    </div>
+
+    <div id="integrationReport" class="card" style="margin-top:12px;display:none"></div>
+
+    <div id="output" class="preview" contenteditable="true">
+      <h2 style="text-align:center">KẾ HOẠCH BÀI DẠY</h2>
+      <p><b>Ngày soạn:</b> .../.../...</p>
+      <p><b>Ngày giảng:</b> thứ .../.../...</p>
+      <p><b>Lớp:</b> ....</p>
+      <p><b>Tên bài học:</b> .... &nbsp;&nbsp; <b>Số tiết:</b> 1 tiết</p>
+      <hr>
+      <h3>I. YÊU CẦU CẦN ĐẠT</h3>
+      <p><b>1. Năng lực đặc thù:</b> ...</p>
+      <p><b>2. Năng lực chung:</b> ...</p>
+      <p><b>3. Phẩm chất:</b> ...</p>
+      <p><b>4. Tích hợp:</b> Chỉ lựa chọn nội dung thực sự phù hợp với bài học.</p>
+      <h3>II. ĐỒ DÙNG DẠY HỌC</h3>
+      <p>...</p>
+      <h3>III. CÁC HOẠT ĐỘNG DẠY HỌC CHỦ YẾU</h3>
+      <p><b>1. Hoạt động mở đầu: Khởi động, kết nối.</b></p>
+      <table style="width:100%;border-collapse:collapse" border="1">
+        <tr><th>Hoạt động của giáo viên</th><th>Hoạt động của học sinh</th></tr>
+        <tr><td>...</td><td>...</td></tr>
+      </table>
+      <p><b>2. Khám phá:</b></p>
+      <p>- Bài 1: ...</p><p>- Bài 2: ...</p><p>- Bài 3: ...</p><p>- Bài 4: ...</p>
+      <p><b>3. Vận dụng trải nghiệm:</b> ...</p>
+      <h3>IV. ĐIỀU CHỈNH SAU BÀI DẠY</h3>
+      <p>...</p>
+    </div>
+  </div>
+
+  <div class="card no-print">
+    <h3>🧾 Nội dung SGK đã đọc</h3>
+    <textarea id="sourceText" style="min-height:260px" placeholder="Nội dung trích xuất từ PDF/Word/Excel/TXT sẽ xuất hiện ở đây. Có thể chỉnh sửa trước khi AI soạn."></textarea>
+  </div>
+</main>
+</div>
+</div>
+
+<script>
+const state = { files: [], extracted: [], images: [] };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[c]));
+
+function setStatus(id, msg, type='') {
+  const el=$(id); el.className='status '+type; el.innerHTML=msg;
+}
+
+function selectedIntegrations(){
+  const arr=[...document.querySelectorAll('.checks input:checked')].map(x=>x.value);
+  if($('otherIntegration').value.trim()) arr.push($('otherIntegration').value.trim());
+  return arr;
+}
+
+$('files').addEventListener('change', e=>{
+  state.files=[...e.target.files];
+  renderFiles();
+});
+
+function renderFiles(){
+  $('fileList').innerHTML=state.files.length
+    ? state.files.map((f,i)=>`<div class="file-item">📄 ${esc(f.name)} <span class="small">(${Math.round(f.size/1024)} KB)</span></div>`).join('')
+    : '<span class="small">Chưa có tệp.</span>';
+}
+
+$('clearFilesBtn').onclick=()=>{
+  state.files=[]; state.extracted=[]; state.images=[]; $('files').value='';
+  $('sourceText').value=''; renderFiles();
+  setStatus('extractStatus','Đã xóa tài liệu.');
+};
+
+$('dropZone').addEventListener('dragover',e=>{e.preventDefault();});
+$('dropZone').addEventListener('drop',e=>{
+  e.preventDefault(); state.files=[...e.dataTransfer.files]; renderFiles();
+});
+
+async function readPDF(file){
+  const pdfjs = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs');
+  pdfjs.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+  const data=new Uint8Array(await file.arrayBuffer());
+  const pdf=await pdfjs.getDocument({data}).promise;
+  let out=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p);
+    const content=await page.getTextContent();
+    out.push(`--- TRANG ${p} ---\n`+content.items.map(x=>x.str).join(' '));
+  }
+  return out.join('\n');
+}
+
+async function readDocx(file){
+  const result=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});
+  return result.value;
+}
+
+async function readExcel(file){
+  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});
+  let out=[];
+  wb.SheetNames.forEach(name=>{
+    const ws=wb.Sheets[name];
+    out.push(`--- SHEET: ${name} ---\n`+XLSX.utils.sheet_to_csv(ws));
+  });
+  return out.join('\n');
+}
+
+async function readText(file){ return await file.text(); }
+
+async function readImage(file){
+  const data=await file.arrayBuffer();
+  const base64=btoa(String.fromCharCode(...new Uint8Array(data)));
+  const mime=file.type || 'image/jpeg';
+  state.images.push({mimeType:mime,data:base64,name:file.name});
+  return `[ẢNH: ${file.name}] AI sẽ đọc nội dung ảnh khi gửi yêu cầu.`;
+}
+
+$('extractBtn').onclick=async()=>{
+  if(!state.files.length){setStatus('extractStatus','Hãy chọn ít nhất một tài liệu.','warning');return;}
+  state.extracted=[]; state.images=[];
+  setStatus('extractStatus','<span class="spinner"></span> Đang đọc tài liệu...');
+  for(const file of state.files){
+    try{
+      const ext=file.name.toLowerCase().split('.').pop();
+      let text='';
+      if(ext==='pdf') text=await readPDF(file);
+      else if(ext==='docx') text=await readDocx(file);
+      else if(ext==='xlsx'||ext==='xls') text=await readExcel(file);
+      else if(ext==='txt') text=await readText(file);
+      else if(['jpg','jpeg','png','webp'].includes(ext)) text=await readImage(file);
+      else text=`[Không hỗ trợ trực tiếp: ${file.name}]`;
+      state.extracted.push(`===== ${file.name} =====\n${text}`);
+    }catch(err){
+      state.extracted.push(`===== ${file.name} =====\n[LỖI ĐỌC TỆP: ${err.message}]`);
+    }
+  }
+  $('sourceText').value=state.extracted.join('\n\n');
+  setStatus('extractStatus',`Đã xử lý ${state.files.length} tệp. Có thể kiểm tra/chỉnh sửa nội dung trước khi soạn.`,'success');
+};
+
+function buildPrompt(mode='generate'){
+  const integrations=selectedIntegrations();
+  const source=$('sourceText').value.trim();
+  const lesson=$('lesson').value.trim();
+  const note=$('teacherNote').value.trim();
+
+  return `Bạn là chuyên gia thiết kế Kế hoạch bài dạy tiểu học tại Việt Nam.
+Nhiệm vụ: ${mode==='analysis'?'PHÂN TÍCH KHẢ NĂNG TÍCH HỢP':'SOẠN HOÀN CHỈNH KẾ HOẠCH BÀI DẠY'} dựa trước hết vào nội dung tài liệu SGK/tài liệu giáo viên được cung cấp.
+
+THÔNG TIN:
+- Lớp: ${$('grade').value}
+- Môn: ${$('subject').value}
+- Tên bài: ${lesson || '(hãy xác định từ tài liệu nếu có)'}
+- Số tiết: ${$('periods').value}
+- Tích hợp giáo viên quan tâm: ${integrations.length?integrations.join(', '):'hãy tự phân tích, không bắt buộc'}
+- Yêu cầu riêng: ${note || 'Không có'}
+
+NGUYÊN TẮC QUAN TRỌNG:
+1. Khung Kế hoạch bài dạy phải bám đúng cấu trúc khung mẫu CV 2345 mà giáo viên cung cấp: 
+   Ngày soạn; Ngày giảng; Lớp; Tên bài học; Số tiết;
+   I. Yêu cầu cần đạt (Năng lực đặc thù, Năng lực chung, Phẩm chất, Tích hợp);
+   II. Đồ dùng dạy học;
+   III. Các hoạt động dạy học chủ yếu (Mở đầu/Khởi động, Khám phá, các bài/nhiệm vụ, Vận dụng trải nghiệm);
+   IV. Điều chỉnh sau bài dạy.
+2. Khung trên chỉ là KHUNG. Phải phát triển nội dung cụ thể từ SGK/tài liệu nguồn, không để dấu "...".
+3. Không tự bịa nội dung bài học nếu tài liệu nguồn không đủ. Nếu thiếu dữ liệu quan trọng, ghi rõ phần cần giáo viên bổ sung.
+4. Phân tích xem bài này CÓ THỰC SỰ phù hợp với Năng lực số, Học thông qua chơi, STEM/STEAM, Bình đẳng giới, Giáo dục địa phương, Môi trường, An toàn, Tài chính hoặc tích hợp khác hay không.
+5. Chỉ đưa tích hợp vào kế hoạch khi có sự liên hệ tự nhiên với mục tiêu/nội dung/hoạt động. Nếu không phù hợp, ghi "Không tích hợp trong bài này" và nêu lý do ngắn gọn.
+6. Năng lực số phải gắn với nhiệm vụ cụ thể, không chỉ ghi tên chung chung.
+7. Học thông qua chơi phải chỉ rõ trò chơi/nhiệm vụ, luật/cách chơi và mục tiêu học tập nếu thực sự phù hợp.
+8. STEM/STEAM chỉ đề xuất khi có vấn đề thực tiễn, thiết kế/chế tạo/khám phá phù hợp; không gắn nhãn STEM cho mọi bài.
+9. Bình đẳng giới phải thể hiện trong tình huống, ngôn ngữ, vai trò tham gia của học sinh, tránh định kiến giới; không gượng ép.
+10. Thiết kế hoạt động theo hướng học sinh làm trung tâm; nêu rõ việc GV làm và HS làm.
+11. Có câu hỏi/nhiệm vụ, sản phẩm học tập, dự kiến phản hồi và cách đánh giá khi cần.
+12. Có phân hóa phù hợp học sinh: hỗ trợ học sinh còn khó khăn và mở rộng cho học sinh hoàn thành tốt.
+13. Ưu tiên chính xác nội dung SGK; không thay thế kiến thức trong tài liệu bằng kiến thức ngoài nếu không cần thiết.
+14. Kết quả phải dùng tiếng Việt chuẩn, rõ ràng, có thể copy sang Word và chỉnh sửa.
+
+TÀI LIỆU NGUỒN:
+${source || '(Chưa có nội dung nguồn. Hãy báo rõ cần tải SGK/tài liệu lên.)'}
+
+${state.images.length?`CÓ ${state.images.length} ẢNH KÈM THEO. Hãy đọc chữ, bảng, sơ đồ và hình minh họa trong ảnh nếu cần.`:''}
+
+${mode==='analysis'
+?`YÊU CẦU ĐẦU RA:
+A. Tóm tắt mục tiêu và nội dung trọng tâm của bài.
+B. Bảng "Tích hợp | Có/Không | Căn cứ từ bài | Cách tích hợp đề xuất".
+C. Đề xuất hoạt động có thể tích hợp.
+D. Những tích hợp không nên đưa vào và lý do.
+E. Các điểm giáo viên cần kiểm tra trước khi dùng kế hoạch.`
+:`YÊU CẦU ĐẦU RA:
+Trả về HTML sạch, KHÔNG có markdown code fence.
+Dùng <h2>, <h3>, <p>, <ol>, <ul>, <table>, <tr>, <th>, <td>.
+Tiêu đề chính: KẾ HOẠCH BÀI DẠY.
+Bảng hoạt động nên có các cột: Hoạt động của giáo viên | Hoạt động của học sinh | Sản phẩm/Dự kiến kết quả | Đánh giá (nếu phù hợp).
+Bảo đảm đủ 4 phần I-IV theo khung.`;
+}
+
+async function callGemini(prompt){
+  const key=$('apiKey').value.trim();
+  if(!key) throw new Error('Chưa nhập Gemini API Key.');
+  const model=$('model').value.trim() || 'gemini-2.5-flash';
+
+  const parts=[{text:prompt}];
+  for(const img of state.images){
+    parts.push({inline_data:{mime_type:img.mimeType,data:img.data}});
+  }
+
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+  const res=await fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      contents:[{role:'user',parts}],
+      generationConfig:{temperature:0.25,topP:0.9,maxOutputTokens:20000}
+    })
+  });
+  const data=await res.json();
+  if(!res.ok) throw new Error(data?.error?.message || `API lỗi ${res.status}`);
+  return (data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('\n');
+}
+
+$('analyzeBtn').onclick=async()=>{
+  try{
+    setStatus('aiStatus','<span class="spinner"></span> AI đang phân tích...');
+    const result=await callGemini(buildPrompt('analysis'));
+    $('integrationReport').style.display='block';
+    $('integrationReport').innerHTML='<h3>🔍 Phân tích tích hợp</h3>'+result;
+    setStatus('aiStatus','Đã phân tích xong.','success');
+  }catch(e){setStatus('aiStatus','Lỗi: '+esc(e.message),'warning');}
+};
+
+$('generateBtn').onclick=async()=>{
+  try{
+    setStatus('aiStatus','<span class="spinner"></span> AI đang soạn Kế hoạch bài dạy...');
+    const result=await callGemini(buildPrompt('generate'));
+    const clean=result.replace(/^```html\s*/i,'').replace(/^```\s*/,'').replace(/```$/,'');
+    $('output').innerHTML=clean;
+    setStatus('aiStatus','Đã tạo Kế hoạch bài dạy. Giáo viên nên kiểm tra lại nội dung trước khi sử dụng.','success');
+  }catch(e){setStatus('aiStatus','Lỗi: '+esc(e.message),'warning');}
+};
+
+$('analysisBtn').onclick=()=>{ $('integrationReport').style.display=$('integrationReport').style.display==='none'?'block':'none'; };
+
+$('printBtn').onclick=()=>window.print();
+
+$('copyBtn').onclick=async()=>{
+  await navigator.clipboard.writeText($('output').innerText);
+  setStatus('aiStatus','Đã sao chép nội dung Kế hoạch bài dạy.','success');
+};
+
+$('downloadBtn').onclick=()=>{
+  const full=`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Kế hoạch bài dạy</title>
+  <style>body{font-family:Arial;max-width:1000px;margin:30px auto;line-height:1.55}table{border-collapse:collapse;width:100%}th,td{border:1px solid #555;padding:7px;vertical-align:top}th{font-weight:bold}</style>
+  </head><body>${$('output').innerHTML}</body></html>`;
+  const blob=new Blob([full],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`KHBĐ_${($('lesson').value||'Tieu_hoc').replace(/[^\w\-À-ỹ ]/g,'').replace(/\s+/g,'_')}.html`;
+  a.click();URL.revokeObjectURL(a.href);
+};
+
+$('prepareDate').valueAsDate=new Date();
+
+</script>
+</body>
+</html>
