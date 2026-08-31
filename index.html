@@ -160,36 +160,69 @@ summary{font-weight:700;cursor:pointer}
       <button class="btn2" id="analysisBtn">Xem phân tích tích hợp</button>
       <button class="btn2" id="printBtn">🖨️ In / Lưu PDF</button>
       <button class="btn2" id="copyBtn">📋 Sao chép</button>
-      <button class="btn2" id="downloadBtn">⬇️ Tải file HTML</button>
+      <button class="btn2" id="downloadBtn">⬇️ Tải file Word (.doc)</button>
     </div>
 
     <div id="integrationReport" class="card" style="margin-top:12px;display:none"></div>
 
     <div id="output" class="preview" contenteditable="true">
-      <h2 style="text-align:center">KẾ HOẠCH BÀI DẠY</h2>
       <p><b>Ngày soạn:</b> .../.../...</p>
-      <p><b>Ngày giảng:</b> thứ .../.../...</p>
+      <p><b>Ngày giảng thứ</b> .../.../.../...</p>
       <p><b>Lớp:</b> 5</p>
-      <p><b>Tên bài học:</b> .... &nbsp;&nbsp; <b>Số tiết:</b> 1 tiết</p>
-      <hr>
-      <h3>I. YÊU CẦU CẦN ĐẠT</h3>
-      <p><b>1. Năng lực đặc thù:</b> ...</p>
-      <p><b>2. Năng lực chung:</b> ...</p>
-      <p><b>3. Phẩm chất:</b> ...</p>
-      <p><b>4. Tích hợp:</b> Chỉ lựa chọn nội dung thực sự phù hợp với bài học.</p>
-      <h3>II. ĐỒ DÙNG DẠY HỌC</h3>
-      <p>...</p>
-      <h3>III. CÁC HOẠT ĐỘNG DẠY HỌC CHỦ YẾU</h3>
-      <p><b>1. Hoạt động mở đầu: Khởi động, kết nối.</b></p>
+      <p style="display:flex;justify-content:space-between;align-items:center;">
+        <b>Tên bài học: <span style="text-transform:uppercase">TÊN BÀI HỌC</span></b>
+        <b>Số tiết: 1 tiết.</b>
+      </p>
+      <p><b>I. Yêu cầu cần đạt:</b></p>
+      <p><b>1. Năng lực đặc thù:</b><br>...</p>
+      <p><b>2. Năng lực chung:</b><br>...</p>
+      <p><b>3. Phẩm chất:</b><br>...</p>
+      <p><b>4. Tích hợp Năng lực số, Học thông qua chơi, Stem, Bình đẳng giới...</b><br>...</p>
+      
+      <p><b>II. Đồ dùng dạy học:</b><br>...</p>
+      
+      <p><b>III. Các hoạt động dạy học chủ yếu:</b></p>
       <table style="width:100%;border-collapse:collapse" border="1">
-        <tr><th>Hoạt động của giáo viên</th><th>Hoạt động của học sinh</th></tr>
-        <tr><td>...</td><td>...</td></tr>
+        <thead>
+          <tr>
+            <th style="width:50%;text-align:center;padding:8px">Hoạt động của giáo viên</th>
+            <th style="width:50%;text-align:center;padding:8px">Hoạt động của học sinh</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="2" style="background:#f9f9f9;font-weight:bold;padding:6px 8px">1. Hoạt động mở đầu: Khởi động, kết nối.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;vertical-align:top">- ...</td>
+            <td style="padding:8px;vertical-align:top">- ...</td>
+          </tr>
+          <tr>
+            <td colspan="2" style="background:#f9f9f9;font-weight:bold;padding:6px 8px">2. Khám phá / Luyện tập thực hành:</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;vertical-align:top">
+              <b>Bài 1.</b><br>- ...<br><br>
+              <b>Bài 2.</b><br>- ...<br><br>
+              <b>Bài 3.</b><br>- ...
+            </td>
+            <td style="padding:8px;vertical-align:top">
+              <br>- ...<br><br>
+              <br>- ...<br><br>
+              <br>- ...
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" style="background:#f9f9f9;font-weight:bold;padding:6px 8px">3. Vận dụng trải nghiệm.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;vertical-align:top">- ...</td>
+            <td style="padding:8px;vertical-align:top">- ...</td>
+          </tr>
+        </tbody>
       </table>
-      <p><b>2. Hình thành kiến thức / Luyện tập thực hành:</b></p>
-      <p>- Bài 1: ...</p><p>- Bài 2: ...</p>
-      <p><b>3. Vận dụng trải nghiệm:</b> ...</p>
-      <h3>IV. ĐIỀU CHỈNH SAU BÀI DẠY</h3>
-      <p>...</p>
+      
+      <p><b>IV. Điều chỉnh sau bài dạy:</b><br>.................................................................................................................................</p>
     </div>
   </div>
 
@@ -385,32 +418,49 @@ function buildPrompt(mode) {
   var lesson = $('lesson').value.trim();
   var note = $('teacherNote').value.trim();
   var integrations = selectedIntegrations();
+  var grade = $('grade').value;
+  var periods = $('periods').value;
+  var prepDate = $('prepareDate').value ? new Date($('prepareDate').value).toLocaleDateString('vi-VN') : '.../.../...';
+  var teachDate = $('teachDate').value ? new Date($('teachDate').value).toLocaleDateString('vi-VN') : '.../.../...';
 
-  var prompt = 'Bạn là chuyên gia thiết kế Kế hoạch bài dạy tiểu học Việt Nam theo chương trình GDPT 2018 và Công văn 2345/BGDĐT-GDTH.\n';
+  var prompt = 'Bạn là chuyên gia thiết kế Kế hoạch bài dạy tiểu học Việt Nam theo chương trình GDPT 2018.\n';
   prompt += 'Hãy ' + (mode === 'analysis' ? 'PHÂN TÍCH BÀI HỌC VÀ KHẢ NĂNG TÍCH HỢP' : 'SOẠN HOÀN CHỈNH KẾ HOẠCH BÀI DẠY') + ' dựa vào tài liệu SGK được cung cấp.\n\n';
   prompt += 'THÔNG TIN BÀI DẠY:\n';
-  prompt += '- Lớp: ' + $('grade').value + '\n';
+  prompt += '- Lớp: ' + grade + '\n';
   prompt += '- Môn học: ' + ($('subject').value || '(Tự xác định theo tài liệu)') + '\n';
   prompt += '- Tên bài: ' + (lesson || '(Tự xác định từ tài liệu nếu có)') + '\n';
-  prompt += '- Số tiết: ' + $('periods').value + '\n';
-  prompt += '- Các nội dung tích hợp quan tâm: ' + (integrations.length ? integrations.join(', ') : 'Tự đánh giá phù hợp') + '\n';
+  prompt += '- Số tiết: ' + periods + '\n';
+  prompt += '- Các nội dung tích hợp: ' + (integrations.length ? integrations.join(', ') : 'Năng lực số, Học thông qua chơi, STEM, Bình đẳng giới') + '\n';
   prompt += '- Yêu cầu riêng: ' + (note || 'Không có') + '\n\n';
 
-  prompt += 'KHUNG CẤU TRÚC KẾ HOẠCH BÀI DẠY (Bám chuẩn CV 2345):\n';
-  prompt += 'Ngày soạn; Ngày giảng; Lớp; Tên bài học; Số tiết.\n';
-  prompt += 'I. YÊU CẦU CẦN ĐẠT:\n1. Năng lực đặc thù\n2. Năng lực chung\n3. Phẩm chất\n4. Tích hợp phù hợp.\n';
-  prompt += 'II. ĐỒ DÙNG DẠY HỌC\n';
-  prompt += 'III. CÁC HOẠT ĐỘNG DẠY HỌC CHỦ YẾU:\n';
-  prompt += '1. Hoạt động mở đầu (Khởi động, kết nối)\n';
-  prompt += '2. Hoạt động hình thành kiến thức mới / Luyện tập, thực hành theo các bài tập SGK\n';
-  prompt += '3. Hoạt động vận dụng, trải nghiệm\n';
-  prompt += 'IV. ĐIỀU CHỈNH SAU BÀI DẠY\n\n';
+  prompt += 'QUY TẮC CẤU TRÚC KẾ HOẠCH BÀI DẠY (TUÂN THỦ TUYỆT ĐỐI KHUNG DƯỚI ĐÂY):\n';
+  prompt += '<p><b>Ngày soạn:</b> ' + prepDate + '</p>\n';
+  prompt += '<p><b>Ngày giảng thứ:</b> ' + teachDate + '</p>\n';
+  prompt += '<p><b>Lớp:</b> ' + grade.replace(/[^0-9]/g, '') + '</p>\n';
+  prompt += '<p style="display:flex;justify-content:space-between;align-items:center;"><b>Tên bài học: <span style="text-transform:uppercase">' + (lesson ? lesson.toUpperCase() : 'TÊN BÀI HỌC') + '</span></b> <b>Số tiết: ' + periods + '.</b></p>\n';
+  prompt += '<p><b>I. Yêu cầu cần đạt:</b></p>\n';
+  prompt += '<p><b>1. Năng lực đặc thù:</b><br>(Viết rõ ràng, cụ thể các năng lực đặc thù đạt được sau bài học)</p>\n';
+  prompt += '<p><b>2. Năng lực chung:</b><br>(Năng lực tự chủ và tự học, giao tiếp và hợp tác, giải quyết vấn đề và sáng tạo)</p>\n';
+  prompt += '<p><b>3. Phẩm chất:</b><br>(Yêu nước, nhân ái, chăm chỉ, trung thực, trách nhiệm phù hợp bài học)</p>\n';
+  prompt += '<p><b>4. Tích hợp Năng lực số, Học thông qua chơi, Stem, Bình đẳng giới...</b><br>(Chỉ nêu các nội dung thực sự tích hợp được trong bài dạy)</p>\n';
+  prompt += '<p><b>II. Đồ dùng dạy học:</b><br>(Thiết bị, đồ dùng của GV và HS)</p>\n';
+  prompt += '<p><b>III. Các hoạt động dạy học chủ yếu:</b></p>\n';
+  prompt += 'Tất cả các hoạt động dạy học PHẢI nằm trọn vẹn trong 1 bảng HTML 2 cột gồm: "Hoạt động của giáo viên" và "Hoạt động của học sinh".\n';
+  prompt += 'Cấu trúc bảng bao gồm:\n';
+  prompt += '- Dòng tiêu đề mục 1: <tr><td colspan="2" style="background:#f2f2f2;font-weight:bold;">1. Hoạt động mở đầu: Khởi động, kết nối.</td></tr>\n';
+  prompt += '- Dòng nội dung mục 1: <tr><td>(Chi tiết lời dẫn, câu hỏi, tổ chức của GV)</td><td>(Hành động, câu trả lời của HS)</td></tr>\n';
+  prompt += '- Dòng tiêu đề mục 2: <tr><td colspan="2" style="background:#f2f2f2;font-weight:bold;">2. Khám phá / Luyện tập thực hành:</td></tr>\n';
+  prompt += '- Dòng nội dung mục 2: Từng bài tập Bài 1, Bài 2, Bài 3, Bài 4... tương ứng 2 cột GV và HS.\n';
+  prompt += '- Dòng tiêu đề mục 3: <tr><td colspan="2" style="background:#f2f2f2;font-weight:bold;">3. Vận dụng trải nghiệm.</td></tr>\n';
+  prompt += '- Dòng nội dung mục 3: Tương ứng 2 cột GV và HS.\n';
+  prompt += '<p><b>IV. Điều chỉnh sau bài dạy:</b><br>.................................................................................................................................</p>\n\n';
 
-  prompt += 'NGUYÊN TẮC BẮT BUỘC:\n';
-  prompt += '- Không để dấu "..." trong bản soạn, phải viết chi tiết lời dẫn của GV, câu hỏi và hành động của HS.\n';
-  prompt += '- Bám sát nội dung SGK nguồn. Không tự bịa bài tập.\n';
-  prompt += '- Trả về mã HTML thuần (h2, h3, p, ul, ol, table, tr, th, td). KHÔNG bọc trong khối code markdown (```html).\n';
-  prompt += '- Các hoạt động ở mục III phải được trình bày dưới dạng bảng HTML 2 cột rõ ràng: "Hoạt động của giáo viên" và "Hoạt động của học sinh".\n\n';
+  prompt += 'LƯU Ý ĐẶC BIỆT:\n';
+  prompt += '1. KHÔNG thêm mục tiêu riêng rẽ vào từng hoạt động/mục.\n';
+  prompt += '2. KHÔNG thêm thời gian (như 5 phút, 10 phút,...) vào các tiêu đề hay mục hoạt động.\n';
+  prompt += '3. Tất cả mục 1, 2, 3 và các Bài 1, 2, 3... đều phải nằm bên trong khung bảng 2 cột Hoạt động của giáo viên | Hoạt động của học sinh.\n';
+  prompt += '4. Không để dấu chấm lửng "...", phải soạn chi tiết đầy đủ câu hỏi của GV và câu trả lời của HS.\n';
+  prompt += '5. Trả về mã HTML thuần (p, b, table, thead, tbody, tr, th, td, br). KHÔNG bọc trong khối code markdown (```html).\n\n';
 
   prompt += 'TÀI LIỆU NGUỒN:\n' + (source || '(Chưa có nội dung chữ, hãy đọc từ các ảnh SGK kèm theo).') + '\n';
 
@@ -547,15 +597,46 @@ $('copyBtn').onclick = async function() {
 
 $('downloadBtn').onclick = function() {
   var title = ($('lesson').value || 'KHBD_TieuHoc').replace(/[^\w\-À-ỹ ]/g, '').replace(/\s+/g, '_');
-  var full = '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Kế hoạch bài dạy</title>' +
-    '<style>body{font-family:Arial,Helvetica,sans-serif;max-width:1000px;margin:30px auto;line-height:1.55;padding:0 15px}' +
-    'table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #333;padding:8px;vertical-align:top}' +
-    'th{background:#f2f2f2;font-weight:bold;text-align:center}</style></head><body>' +
-    $('output').innerHTML + '</body></html>';
-  var blob = new Blob([full], { type: 'text/html;charset=utf-8' });
+  
+  var wordDoc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+    'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+    'xmlns="http://www.w3.org/TR/REC-html40">' +
+    '<head><meta charset="utf-8"><title>Kế hoạch bài dạy</title>' +
+    '<!--[if gte mso 9]>' +
+    '<xml>' +
+    '<w:WordDocument>' +
+    '<w:View>Print</w:View>' +
+    '<w:Zoom>100</w:Zoom>' +
+    '<w:DoNotOptimizeForBrowser/>' +
+    '</w:WordDocument>' +
+    '</xml>' +
+    '<![endif]-->' +
+    '<style>' +
+    '@page Section1 {' +
+    '  size: 21.0cm 29.7cm;' + /* Khổ giấy A4 */
+    '  margin: 2.0cm 1.5cm 2.0cm 3.0cm;' + /* Trên: 2cm, Phải: 1.5cm, Dưới: 2cm, Trái: 3cm */
+    '  mso-page-orientation: portrait;' +
+    '  mso-header-margin: 36.0pt;' +
+    '  mso-footer-margin: 36.0pt;' +
+    '}' +
+    'div.Section1 { page: Section1; }' +
+    'body { font-family: "Times New Roman", Times, serif; font-size: 13pt; line-height: 1.3; }' +
+    'h1, h2, h3, h4 { font-family: "Times New Roman", Times, serif; color: #000; }' +
+    'table { border-collapse: collapse; width: 100%; margin: 12pt 0; }' +
+    'th, td { border: 1px solid #000; padding: 6pt; vertical-align: top; font-size: 13pt; font-family: "Times New Roman", Times, serif; }' +
+    'th { background-color: #f2f2f2; font-weight: bold; text-align: center; }' +
+    'p { margin-top: 4pt; margin-bottom: 4pt; text-align: justify; }' +
+    '</style></head>' +
+    '<body>' +
+    '<div class="Section1">' +
+    $('output').innerHTML +
+    '</div>' +
+    '</body></html>';
+
+  var blob = new Blob(['\ufeff' + wordDoc], { type: 'application/msword;charset=utf-8' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'KHBD_' + title + '.html';
+  a.download = 'KHBD_' + title + '.doc';
   document.body.appendChild(a);
   a.click();
   a.remove();
